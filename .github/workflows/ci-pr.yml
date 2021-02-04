@@ -11,6 +11,7 @@ on:
 jobs:
   check_workflow:
     name: "Check Workflow Run"
+    if: github.event_name == 'pull_request'
     # continue-on-error: true # Uncomment once integration is finished
     runs-on: ubuntu-18.04
     # Map a step output to a job output
