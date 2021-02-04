@@ -9,8 +9,9 @@ on:
       - "*"
 
 jobs:
-  check_workflow:
+  check-workflow:
     name: "Check Workflow Run"
+    if: ${{ github.event_name == 'pull_request' }}
     # continue-on-error: true # Uncomment once integration is finished
     runs-on: ubuntu-18.04
     # Map a step output to a job output
@@ -26,7 +27,8 @@ jobs:
 
   cancel-run-pr:
     name: "Cancel Previous Runs"
-    if: ${{ success() && github.event_name == 'pull_request' && needs.check_workflow.outputs.should_skip != 'true'}}
+    needs: check-workflow
+    if: ${{ github.event_name == 'pull_request' && needs.check-workflow.outputs.should_skip != 'true'}}
     runs-on: ubuntu-18.04
     steps:
       - uses: khan/pull-request-workflow-cancel@1.0.0
@@ -37,9 +39,8 @@ jobs:
 
   run-tests:
     name: "Run tests"
-    needs: check_workflow
-    if:
-      ${{ success() && github.event.pull_request && needs.check_workflow.outputs.should_skip != 'true' }}
+    needs: [check-workflow, cancel-run-pr]
+    if: ${{ github.event.pull_request && needs.check-workflow.outputs.should_skip != 'true' }}
     env:
       LINT_CHECK: "0"
       TESTS: "0"
