@@ -11,9 +11,10 @@ on:
       - "*ocabot-merge*"
 
 jobs:
-  check_workflow:
+  check-workflow:
     name: "Check Workflow Run"
     # continue-on-error: true # Uncomment once integration is finished
+    if: github.event_name == 'push'
     runs-on: ubuntu-18.04
     # Map a step output to a job output
     outputs:
@@ -28,7 +29,8 @@ jobs:
 
   cancel-run-push:
     name: "Cancel Previous Runs"
-    if: ${{ success() && github.event_name == 'push' && needs.check_workflow.outputs.should_skip != 'true'}}
+    needs: check-workflow
+    if: ${{ github.event_name == 'push' && needs.check-workflow.outputs.should_skip != 'true'}}
     runs-on: ubuntu-18.04
     timeout-minutes: 3
     steps:
@@ -47,9 +49,8 @@ jobs:
 
   run-tests:
     name: "Run tests"
-    needs: check_workflow
-    if:
-      ${{ !github.event.pull_request && needs.check_workflow.outputs.should_skip !=
+    needs: [check-workflow, cancel-run-push]
+    if: ${{ !github.event.pull_request && needs.check-workflow.outputs.should_skip !=
       'true' }}
     env:
       LINT_CHECK: "0"
@@ -123,7 +124,8 @@ jobs:
 
   copy-to-release:
     runs-on: ubuntu-latest
-    if: ${{ success() && github.ref == 'refs/heads/12.0' }}
+    needs: run-tests
+    if: ${{ github.ref == 'refs/heads/12.0' }}
     steps:
     - name: Copycat
       uses: andstor/copycat-action@v3
