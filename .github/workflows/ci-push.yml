@@ -131,7 +131,7 @@ jobs:
         personal_token: ${{ secrets.GS_TOKEN }}
         src_path: /.
         dst_path: /.
-        exclude: ['/.github/*','/oca_dependencies.txt','requirements.txt','/README.txt']
+        exclude: ['.github/*','oca_dependencies.txt','requirements.txt','README.txt']
         dst_owner: gslabit
         dst_repo_name: test-actions
         dst_branch: "12.0-dev"
