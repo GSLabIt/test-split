@@ -131,6 +131,7 @@ jobs:
         personal_token: ${{ secrets.GS_TOKEN }}
         src_path: /.
         dst_path: /.
+        filter: '**/!(*.txt|*.md|*.git*|*.yml)'
         exclude: '.github/*'
         dst_owner: gslabit
         dst_repo_name: test-actions
