@@ -45,17 +45,6 @@ jobs:
           workflow_id: ${{ steps.get_workflow_id.outputs.workflow_id }}
           access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  runbot:
-    name: "Build Runbot"
-    if: contains(github.ref, 'ocabot-merge') != true
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: distributhor/workflow-webhook@v1.0.5
-        env:
-          webhook_type: "form-urlencoded"
-          webhook_url: "${{ secrets.WEBHOOK_URL }}/1"
-          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-
   run-tests:
     name: "Run tests"
     needs: check_workflow
