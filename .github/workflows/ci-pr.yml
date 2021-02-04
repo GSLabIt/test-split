@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Ooops CI
+name: Ooops CI - PR
 
 on:
   pull_request:
@@ -18,15 +18,16 @@ jobs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
       - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+        uses: fkirc/skip-duplicate-actions@v2.2.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          paths_ignore: '["**/README.rst", "**/README.md"]'
+          paths_ignore:
+            '["**/README.rst", "**/README.md", "**/i18n/*.po*", "**/workflows/*.yml"]'
 
   cancel-run-pr:
-    name: "Cancel Previous Pull Requests Runs"
+    name: "Cancel Previous Runs"
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: khan/pull-request-workflow-cancel@1.0.0
         with:
@@ -34,10 +35,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  runbot:
+    name: "Build Runbot"
+    if: contains(github.ref, 'ocabot-merge') != true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: distributhor/workflow-webhook@v1.0.5
+        env:
+          webhook_type: "form-urlencoded"
+          webhook_url: "${{ secrets.WEBHOOK_URL }}/1"
+          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+
   run-tests:
     name: "Run tests"
     needs: check_workflow
-    if: ${{ needs.check_workflow.outputs.should_skip != 'true' }}
+    if:
+      ${{ github.event.pull_request && needs.check_workflow.outputs.should_skip !=
+      'true' }}
     env:
       LINT_CHECK: "0"
       TESTS: "0"
@@ -50,14 +64,13 @@ jobs:
       TRAVIS_BRANCH: ${{ github.head_ref || github.ref}}
       TRAVIS_REPO_SLUG: ${{ github.repository }}
       TRAVIS_PULL_REQUEST: ${{ github.event.pull_request.number || 'false'}}
-      GITHUB_USER: 'Ooops CI'
+      GITHUB_USER: "Ooops CI"
       GITHUB_EMAIL: noreply@github.com
-      GITHUB_TOKEN: ${{ secrets.GITHUB_PAT_GSLABIT }}
+      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
 
     runs-on: ubuntu-18.04
     container: gslabit/gha-oca-mqt:12.0
     strategy:
-      fail-fast: false
       matrix:
         LINT_CHECK: ["1", "0"]
         TESTS: ["0", "1"]
@@ -84,12 +97,13 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-
       - uses: webfactory/ssh-agent@v0.4.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Run tests LINT=${{ matrix.LINT_CHECK }}, TESTS=${{ matrix.TESTS }}, MAKEPOT = ${{ matrix.MAKEPOT || 0 }}
+      - name:
+          Run tests LINT=${{ matrix.LINT_CHECK }}, TESTS=${{ matrix.TESTS }},
+          MAKEPOT=${{ matrix.MAKEPOT || 0 }}
         env:
           LINT_CHECK: ${{ matrix.LINT_CHECK }}
           TESTS: ${{ matrix.TESTS }}
