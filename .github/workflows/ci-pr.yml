@@ -26,8 +26,7 @@ jobs:
 
   cancel-run-pr:
     name: "Cancel Previous Runs"
-    if: ${{ success() && github.event_name == 'pull_request' && needs.check_workflow.outputs.should_skip !=
-      'true'}}
+    if: ${{ success() && github.event_name == 'pull_request' && needs.check_workflow.outputs.should_skip != 'true'}}
     runs-on: ubuntu-18.04
     steps:
       - uses: khan/pull-request-workflow-cancel@1.0.0
