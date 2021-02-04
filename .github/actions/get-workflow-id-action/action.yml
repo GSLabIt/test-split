@@ -1,0 +1,14 @@
+name: "Python Container Action Template"
+description: "Get started with Python Container actions"
+author: "Giovanni @ GSLab.it"
+inputs:
+  access_token:
+    description: "Github token"
+  workflow_file_name:
+    description: "Workflow file name"
+outputs:
+  workflow_id:
+    description: "Output WORKFLOW_ID"
+runs:
+  using: "docker"
+  image: "Dockerfile"
