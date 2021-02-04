@@ -4,7 +4,7 @@
     <record id="city_zip_geonames_import_form" model="ir.ui.view">
         <field name="name">Import Istat and Zip Codes form view</field>
         <field name="model">city.zip.istat.import</field>
-        <field name="arch"  type="xml">
+        <field name="arch" type="xml">
             <form string="Import Italian Cities">
                 <group name="help">
                     <div>
@@ -16,8 +16,7 @@
                     <field name="letter_case"/>
                 </group>
                 <footer>
-                    <button name="run_import" type="object"
-                        class="oe_highlight" string="Import"/>
+                    <button name="run_import" type="object" class="oe_highlight" string="Import"/>
                     <button special="cancel" string="Cancel" class="oe_link"/>
                 </footer>
             </form>
@@ -31,11 +30,6 @@
         <field name="target">new</field>
     </record>
 
-    <menuitem
-            id="city_zip_istat_import_menu"
-            action="city_zip_istat_import_action"
-            parent="contacts.menu_localisation"
-            sequence="60"
-    />
+    <menuitem id="city_zip_istat_import_menu" action="city_zip_istat_import_action" parent="contacts.menu_localisation" sequence="60" />
 
 </odoo>
