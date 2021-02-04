@@ -22,7 +22,7 @@ jobs:
       - id: skip_check
         uses: fkirc/skip-duplicate-actions@v2.2.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GS_TOKEN }}
           paths_ignore:
             '["**/README.rst", "**/README.md", "**/i18n/*.po*", "**/workflows/*.yml"]'
 
@@ -37,24 +37,13 @@ jobs:
         id: get_workflow_id
         uses: ./.github/actions/get-workflow-id-action
         with:
-          access_token: ${{ secrets.GITHUB_TOKEN }}
+          access_token: ${{ secrets.GS_TOKEN }}
           workflow_file_name: ci-push.yml
 
       - uses: styfle/cancel-workflow-action@0.3.1
         with:
           workflow_id: ${{ steps.get_workflow_id.outputs.workflow_id }}
-          access_token: ${{ secrets.GITHUB_TOKEN }}
-
-  runbot:
-    name: "Build Runbot"
-    if: contains(github.ref, 'ocabot-merge') != true
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: distributhor/workflow-webhook@v1.0.5
-        env:
-          webhook_type: "form-urlencoded"
-          webhook_url: "${{ secrets.WEBHOOK_URL }}/1"
-          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+          access_token: ${{ secrets.GS_TOKEN }}
 
   run-tests:
     name: "Run tests"
@@ -76,7 +65,7 @@ jobs:
       TRAVIS_PULL_REQUEST: ${{ github.event.pull_request.number || 'false'}}
       GITHUB_USER: "Ooops CI"
       GITHUB_EMAIL: noreply@github.com
-      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
+      GITHUB_TOKEN: ${{ secrets.GS_TOKEN }}
 
     runs-on: ubuntu-18.04
     container: gslabit/gha-oca-mqt:12.0
@@ -112,7 +101,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GSLABIT_PAT }}
+          token: ${{ secrets.GS_TOKEN }}
 
       - uses: webfactory/ssh-agent@v0.4.1
         with:
@@ -131,3 +120,22 @@ jobs:
           PGPORT: 5432
         run: |
           . setup_oca_mqt
+
+  copy-to-release:
+    runs-on: ubuntu-latest
+    if: ${{ success() && github.ref == 'refs/heads/12.0' }}
+    steps:
+    - name: Copycat
+      uses: andstor/copycat-action@v3
+      with:
+        personal_token: ${{ secrets.GS_TOKEN }}
+        src_path: /.
+        dst_path: /.
+        filter: '**/!(*.txt|*.md|*.git*|*.yml)'
+        exclude: '.github/*'
+        dst_owner: gslabit
+        dst_repo_name: test-actions
+        dst_branch: "12.0-dev"
+        src_branch: "12.0"
+        username: "Ooops CI"
+        email: noreply@github.com
