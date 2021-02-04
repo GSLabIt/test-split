@@ -22,7 +22,7 @@ jobs:
       - id: skip_check
         uses: fkirc/skip-duplicate-actions@v2.2.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GS_TOKEN }}
           paths_ignore:
             '["**/README.rst", "**/README.md", "**/i18n/*.po*", "**/workflows/*.yml"]'
 
@@ -37,13 +37,13 @@ jobs:
         id: get_workflow_id
         uses: ./.github/actions/get-workflow-id-action
         with:
-          access_token: ${{ secrets.GITHUB_TOKEN }}
+          access_token: ${{ secrets.GS_TOKEN }}
           workflow_file_name: ci-push.yml
 
       - uses: styfle/cancel-workflow-action@0.3.1
         with:
           workflow_id: ${{ steps.get_workflow_id.outputs.workflow_id }}
-          access_token: ${{ secrets.GITHUB_TOKEN }}
+          access_token: ${{ secrets.GS_TOKEN }}
 
   run-tests:
     name: "Run tests"
