@@ -65,7 +65,7 @@ jobs:
       TRAVIS_PULL_REQUEST: ${{ github.event.pull_request.number || 'false'}}
       GITHUB_USER: "Ooops CI"
       GITHUB_EMAIL: noreply@github.com
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GS_TOKEN }}
 
     runs-on: ubuntu-18.04
     container: gslabit/gha-oca-mqt:12.0
@@ -128,7 +128,7 @@ jobs:
     - name: Copycat
       uses: andstor/copycat-action@v3
       with:
-        personal_token: ${{ secrets.GSLABIT_PAT }}
+        personal_token: ${{ secrets.GS_TOKEN }}
         src_path: /.
         dst_path: /.
         dst_owner: gslabit
