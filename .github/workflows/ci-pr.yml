@@ -26,7 +26,8 @@ jobs:
 
   cancel-run-pr:
     name: "Cancel Previous Runs"
-    if: github.event_name == 'pull_request'
+    if: ${{ success() && github.event_name == 'pull_request' && needs.check_workflow.outputs.should_skip !=
+      'true'}}
     runs-on: ubuntu-18.04
     steps:
       - uses: khan/pull-request-workflow-cancel@1.0.0
@@ -39,8 +40,7 @@ jobs:
     name: "Run tests"
     needs: check_workflow
     if:
-      ${{ github.event.pull_request && needs.check_workflow.outputs.should_skip !=
-      'true' }}
+      ${{ success() && github.event.pull_request && needs.check_workflow.outputs.should_skip != 'true' }}
     env:
       LINT_CHECK: "0"
       TESTS: "0"
