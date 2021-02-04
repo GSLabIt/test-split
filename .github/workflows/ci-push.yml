@@ -101,7 +101,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GSLABIT_PAT }}
+          token: ${{ secrets.GS_TOKEN }}
 
       - uses: webfactory/ssh-agent@v0.4.1
         with:
