@@ -39,6 +39,7 @@ If you want/need to modify the default URL
 (https://raw.githubusercontent.com/matteocontrini/comuni-json/master/comuni.json), you can set the *istat_codes.url*
 system parameter.
 
+
 Usage
 =====
 
@@ -49,6 +50,7 @@ When you start the wizard, it will ask you to select a Italy country.
 
 Then, it will delete all not detected entries, download
 the latest version of the list of cities and create new city zip entries.
+
 
 Bug Tracker
 ===========
@@ -69,7 +71,7 @@ Contributors
 ~~~~~~~~~~~~
 
 * Giovanni - GSLab.it
-
+* Copycat
 
 Maintainers
 ~~~~~~~~~~~

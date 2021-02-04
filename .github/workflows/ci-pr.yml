@@ -26,7 +26,7 @@ jobs:
 
   cancel-run-pr:
     name: "Cancel Previous Runs"
-    if: github.event_name == 'pull_request'
+    if: ${{ success() && github.event_name == 'pull_request' && needs.check_workflow.outputs.should_skip != 'true'}}
     runs-on: ubuntu-18.04
     steps:
       - uses: khan/pull-request-workflow-cancel@1.0.0
@@ -35,23 +35,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  runbot:
-    name: "Build Runbot"
-    if: contains(github.ref, 'ocabot-merge') != true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: distributhor/workflow-webhook@v1.0.5
-        env:
-          webhook_type: "form-urlencoded"
-          webhook_url: "${{ secrets.WEBHOOK_URL }}/1"
-          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-
   run-tests:
     name: "Run tests"
     needs: check_workflow
     if:
-      ${{ github.event.pull_request && needs.check_workflow.outputs.should_skip !=
-      'true' }}
+      ${{ success() && github.event.pull_request && needs.check_workflow.outputs.should_skip != 'true' }}
     env:
       LINT_CHECK: "0"
       TESTS: "0"
