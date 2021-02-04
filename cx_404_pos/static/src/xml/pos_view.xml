@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="pos_sale" inherit_id="point_of_sale.template" xml:space="preserve">
+    <!-- Cart -->
+    <t t-name="Orderline">
+        <li t-attf-class="orderline #{ line.selected ? 'selected' : '' }">
+            <span class="product-name">
+                <t t-if="line.note" t-esc="line.note" />
+                <t t-else="" t-esc="line.get_product().display_name" />
+                <t t-if="line.get_product().tracking!=='none'">
+                    <i
+                        t-attf-class="oe_link_icon fa fa-list oe_icon line-lot-icon #{line.has_valid_product_lot() ? 'oe_green' : 'oe_red' }"
+                    />
+                </t>
+            </span>
+            <span class="price">
+                <t t-esc="widget.format_currency(line.get_display_price())" />
+            </span>
+            <ul class="info-list">
+                <t t-if="line.get_quantity_str() !== '1' || line.selected ">
+                    <li class="info">
+                        <em>
+                            <t t-esc="line.get_quantity_str()" />
+                        </em>
+                        <t t-esc="line.get_unit().name" />
+                        at
+                        <t
+                            t-esc="widget.format_currency(line.get_unit_display_price(),'Product Price')"
+                        />
+                        /
+                        <t t-esc="line.get_unit().name" />
+                    </li>
+                </t>
+                <t t-if="line.get_discount_str() !== '0'">
+                    <li class="info">
+                        With a
+                        <em>
+                            <t t-esc="line.get_discount_str()" />%
+                        </em>
+                        discount
+                    </li>
+                </t>
+            </ul>
+        </li>
+    </t>
+    <!-- Ticket -->
+    <t t-name="PosTicket">
+        <div class="pos-sale-ticket">
+            <div class="pos-center-align">
+                <t t-esc="order.formatted_validation_date" />
+                <t t-esc="order.name" />
+            </div>
+            <br />
+            <t t-esc="widget.pos.company.name" />
+            <br />
+            <div class="receipt-phone">
+                Phone: <t t-esc="widget.pos.company.phone || ''" />
+                <br />
+            </div>
+            <div class="receipt-user">
+                User: <t t-esc="widget.pos.get_cashier().name" />
+                <br />
+            </div>
+            <br />
+            <t t-if="receipt.header">
+                <div style='text-align:center'>
+                    <t t-esc="receipt.header" />
+                </div>
+                <br />
+            </t>
+            <table class='receipt-orderlines'>
+                <colgroup>
+                    <col width='50%' />
+                    <col width='25%' />
+                    <col width='25%' />
+                </colgroup>
+                <tr t-foreach="orderlines" t-as="orderline">
+                    <td>
+                        <t t-if="orderline.note" t-esc="orderline.note" />
+                        <t t-else="" t-esc="orderline.get_product().display_name" />
+                        <t t-if="orderline.get_discount() > 0">
+                            <div class="pos-disc-font">
+                                With a <t t-esc="orderline.get_discount()" />% discount
+                            </div>
+                        </t>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="orderline.get_quantity_str_with_unit()" />
+                    </td>
+                    <td class="pos-right-align">
+                        <t
+                            t-esc="widget.format_currency(orderline.get_display_price())"
+                        />
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table class='receipt-total'>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="pos-right-align">
+                        <t
+                            t-esc="widget.format_currency(order.get_total_without_tax())"
+                        />
+                    </td>
+                </tr>
+                <t t-foreach="order.get_tax_details()" t-as="taxdetail">
+                    <tr>
+                        <td>
+                            <t t-esc="taxdetail.name" />
+                        </td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency(taxdetail.amount)" />
+                        </td>
+                    </tr>
+                </t>
+                <tr>
+                    <t t-if="order.get_total_discount() > 0">
+                        <td>Discount:</td>
+                        <td class="pos-right-align">
+                            <t
+                                t-esc="widget.format_currency(order.get_total_discount())"
+                            />
+                        </td>
+                    </t>
+                </tr>
+                <tr class="emph">
+                    <td>Total:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_total_with_tax())" />
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table class='receipt-paymentlines'>
+                <t t-foreach="paymentlines" t-as="line">
+                    <tr>
+                        <td>
+                            <t t-esc="line.name" />
+                        </td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency(line.get_amount())" />
+                        </td>
+                    </tr>
+                </t>
+            </table>
+            <br />
+            <table class='receipt-change'>
+                <tr>
+                    <td>Change:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_change())" />
+                    </td>
+                </tr>
+            </table>
+            <t t-if="receipt.footer">
+                <br />
+                <div style='text-align:center'>
+                    <t t-esc="receipt.footer" />
+                </div>
+            </t>
+        </div>
+    </t>
+    <!-- actionpad -->
+    <t t-name="SaleOrderButtonWidget" name="Sale Orders">
+        <t t-if="widget.pos.config.check">
+            <div
+                class="control-button button confirm"
+                id="import_sales_order"
+                style="background-color: #7f82ac; color: #fff;"
+            >
+        <i class="fa fa-university" />
+                Sale Orders
+      </div>
+        </t>
+    </t>
+    <!-- SeeAllOrdersScreenWidget -->
+    <t t-name="SeeAllOrdersScreenWidget">
+        <div class="clientlist-screen screen">
+            <div class="screen-content">
+                <section class="top-content">
+                    <span class='button back'>
+            <i class='fa fa-angle-double-left' />
+                        Cancel
+          </span>
+                    <span class='searchbox search-order'>
+                        <input placeholder='Search Orders' />
+                        <span class='search-clear' />
+                    </span>
+                    <span class='searchbox' />
+                </section>
+                <section class="full-content">
+                    <div class='window touch-scrollable scrollable-y'>
+                        <section class='subwindow collapsed'>
+                            <div class='subwindow-container'>
+                                <div
+                                    class='subwindow-container-fix client-details-contents'
+                                >
+                </div>
+                            </div>
+                        </section>
+                        <section class='subwindow'>
+                            <div class='subwindow-container'>
+                                <div
+                                    class='subwindow-container-fix touch-scrollable scrollable-y'
+                                >
+                                    <table class='client-list'>
+                                        <thead>
+                                            <tr
+                                                style="background-color: #7f82ac; color: #fff;"
+                                            >
+                                                <th>Order Number</th>
+                                                <th>Order Date</th>
+                                                <th>Customer</th>
+                                                <th>Subtotal</th>
+                                                <th>Total</th>
+                                                <th>Remaining</th>
+                                                <th>Tools</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class='client-list-contents'>
+                    </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+    <!-- OrdersLine -->
+    <t t-name="OrdersLine">
+        <tr class='order-line-sale' t-att-id='order.id'>
+            <td class='orders-line-name' t-att-id='order.id' style="cursor: pointer;">
+                <t t-esc='order.name' />
+            </td>
+            <td class='orders-line-date' t-att-id='order.id' style="cursor: pointer;">
+                <t t-esc='order.date_order' />
+            </td>
+            <td
+                class='orders-line-partner'
+                t-att-id='order.id'
+                style="cursor: pointer;"
+            >
+                <t t-esc='order.partner_id[1] or ""' />
+            </td>
+            <td
+                class='orders-line-subtotal'
+                t-att-id='order.id'
+                style="cursor: pointer;"
+            >
+                <t t-esc='order.amount_untaxed' />
+            </td>
+            <td class='orders-line-tot' t-att-id='order.id' style="cursor: pointer;">
+                <t t-esc='widget.format_currency(order.amount_total)' />
+            </td>
+            <td class='orders-line-tot' t-att-id='order.id' style="cursor: pointer;">
+                <t t-esc='widget.format_currency(order.amount_remaining)' />
+            </td>
+            <td>
+        <button
+                    class="sale-order"
+                    t-att-id='order.id'
+                    style="cursor: pointer; color: #fff; background-color: #3CB371;"
+                > Import </button>
+                or
+                <button
+                    class="sale-order-pay"
+                    t-att-id='order.id'
+                    style="cursor: pointer; color: #fff; background-color: #e67300;"
+                > Pay </button>
+      </td>
+        </tr>
+    </t>
+    <t t-name="SeeOrderDetailsPopupWidget">
+        <div class="modal-dialog">
+            <div class='window touch-scrollable scrollable-y'>
+                <div class="popup popup-confirm" style="height: 450px; width:700px">
+                    <p
+                        class="title"
+                        style="background-color: #7f82ac; color: #fff;height: 10px;"
+                    >Order Details</p>
+                    <div class="body" style="height: 300px;">
+                        <t
+                            t-foreach="widget.options.order || []"
+                            t-as="item"
+                            t-att-id="item.id"
+                        >
+                            <table style='width:100%'>
+                                <tr style='line-height:30px; font-size:15px'>
+                                    <td style='width:20%; text-align:left'>
+                                        <strong>Order Ref:</strong>
+                                    </td>
+                                    <td style='width:30%; text-align:left'>
+                                        <span t-esc="item['name']" />
+                                    </td>
+                                    <td style='width:20%; text-align:left'>
+                                        <strong>Order Date:</strong>
+                                    </td>
+                                    <td style='width:30%; text-align:left'>
+                                        <span t-esc="item['date_order']" />
+                                    </td>
+                                </tr>
+                                <tr style='line-height:30px; font-size:15px'>
+                                    <td style='width:20%; text-align:left'>
+                                        <strong>Customer:</strong>
+                                    </td>
+                                    <td style='width:30%; text-align:left'>
+                                        <span t-esc="item['partner_id'][1]" />
+                                    </td>
+                                    <td style='width:20%; text-align:left'>
+                                        <strong>Total Amount:</strong>
+                                    </td>
+                                    <td style='width:30%; text-align:left'>
+                                        <span t-esc="item['amount_total']" />
+                                    </td>
+                                </tr>
+                                <tr style='line-height:30px; font-size:15px'>
+                                    <td style='width:20%; text-align:left'>
+                                        <strong>Company:</strong>
+                                    </td>
+                                    <td style='width:30%; text-align:left'>
+                                        <span t-esc="item['company_id'][1]" />
+                                    </td>
+                                    <td style='width:20%; text-align:left'>
+                                        <strong>Saleperson:</strong>
+                                    </td>
+                                    <td style='width:30%; text-align:left'>
+                                        <span t-esc="item['user_id'][1]" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </t>
+                        <br />
+                        <table style='width:100%'>
+                            <thead>
+                                <tr style="border:1px solid black; line-height:30px;">
+                                    <th
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >Product</th>
+                                    <th
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >Quantity</th>
+                                    <th
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >Price</th>
+                                    <th
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    style="border:1px solid black; line-height:30px; font-size:15px;"
+                                    t-foreach="widget.options.orderline || []"
+                                    t-as="line1"
+                                >
+                                    <td
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >
+                                        <t t-esc='line1.product_id[1]' />
+                                    </td>
+                                    <td
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >
+                                        <t t-esc='line1.product_uom_qty' />
+                                    </td>
+                                    <td
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >
+                                        <t t-esc='line1.price_unit' />
+                                    </td>
+                                    <td
+                                        style='width:25%; padding-left: 10px; text-align:left'
+                                    >
+                                        <t t-esc='line1.price_subtotal' />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="footer" style="background-color: #7f82ac; color: #fff;">
+                        <div
+                            class="button cancel"
+                            style="background-color: #E0E0E0; color: black;"
+                        >
+            Cancel
+          </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+    <t t-name="SaleOrderPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-confirm" style="height: 350px !important;">
+                <p
+                    class="title"
+                    style="background-color: rgb(110,200,155); color: #fff;"
+                >Sales Order Products</p>
+                <div class="body" style="height: 200px !important;">
+                    <div class='div-container'>
+                        <table class='reorder-product-list'>
+                            <thead>
+                                <tr class="reorder_product_header">
+                                    <th>Product</th>
+                                    <th>Order Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody class='reorder-product-list-contents'>
+                                <tr
+                                    class="reorder_product_body"
+                                    t-foreach="widget.options.orderlines || []"
+                                    t-as="item"
+                                >
+                                    <td>
+                                        <t t-esc='item.product_id[1]' />
+                                    </td>
+                                    <td class="entered_item_qty">
+                                        <input
+                                            id="entered_item_qty"
+                                            t-att-line-id='item.id'
+                                            t-att-qty-id='item.product_uom_qty'
+                                            type="text"
+                                            class="input-field"
+                                            name="code"
+                                        />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div
+                    class="footer"
+                    style="background-color: rgb(110,200,155); color: #fff;"
+                >
+                    <div
+                        class="button cancel"
+                        style="background-color: #0075AC; color: #fff;"
+                    >
+            Cancel
+          </div>
+                    <div
+                        class="button confirm"
+                        id="apply_order"
+                        style="background-color: #0075AC; color: #fff;"
+                    >
+            Apply
+          </div>
+                </div>
+            </div>
+        </div>
+    </t>
+    <t t-name="SaleOrderPayWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-confirm" style="height: 350px !important;">
+                <p
+                    class="title"
+                    style="background-color: #e67300; color: #fff;"
+                >Sales Order Amount</p>
+                <div class="body" style="height: 200px !important;">
+                    <div class='div-container'>
+                        <table class='reorder-product-list'>
+                            <tbody class='reorder-product-list-contents'>
+                                <tr class="reorder_product_body">
+                                    <td>
+                                        <h3>Amount</h3>
+                                    </td>
+                                    <td class="entered_item_qty">
+                                        <input
+                                            id="amount_paid"
+                                            type="text"
+                                            class="input-field"
+                                            name="code"
+                                        />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="footer" style="background-color: #e67300; color: #fff;">
+                    <div
+                        class="button cancel"
+                        style="background-color: #0075AC; color: #fff;"
+                    >
+            Cancel
+          </div>
+                    <div
+                        class="button confirm"
+                        id="apply_payment"
+                        style="background-color: #0075AC; color: #fff;"
+                    >
+            Apply
+          </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
