@@ -139,4 +139,4 @@ jobs:
         src_branch: "12.0"
         username: "Ooops CI"
         email: noreply@github.com
-        commit_message: 'Update file from ${{ github.repository }}'
+        commit_message: 'Update file(s) from ${{ github.repository }}'

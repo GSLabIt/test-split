@@ -71,7 +71,6 @@ Contributors
 ~~~~~~~~~~~~
 
 * Giovanni - GSLab.it
-* Copycat
 
 Maintainers
 ~~~~~~~~~~~
