@@ -36,19 +36,21 @@ class WizardExportFatturapa(models.TransientModel):
         active_id = invoice_obj.browse(self._context.get('active_id'))
 
         if not active_id:
-            raise ValidationError(
-                _('The method can be called with a valid active_id'))
+            raise ValidationError(_('The method can be called with a valid active_id'))
 
         # Search all the invoices belonging the same xml file
-        invoice_ids = invoice_obj.search(
-            [('fatturapa_attachment_out_id', '=',
-             active_id.fatturapa_attachment_out_id.id)]).ids
+        invoice_ids = invoice_obj.search([(
+            'fatturapa_attachment_out_id', '=', active_id.fatturapa_attachment_out_id.id
+        )]).ids
 
         attach = active_id.fatturapa_attachment_out_id
         if not attach:
             raise ValidationError(
-                _("The invoice cannot be regenerated because doesn't have a "
-                  "e-invoice attachment associated to it"))
+                _(
+                    "The invoice cannot be regenerated because doesn't have a "
+                    "e-invoice attachment associated to it"
+                )
+            )
 
         partner = active_id.partner_id
         company = self.env.user.company_id
@@ -56,8 +58,8 @@ class WizardExportFatturapa(models.TransientModel):
         context_partner.update({'lang': partner.lang})
 
         fatturapa, number = self.exportInvoiceXML(
-            company, partner, invoice_ids, attach=attach,
-            context=context_partner)
+            company, partner, invoice_ids, attach=attach, context=context_partner
+        )
 
         self.updateAttachment(attach, fatturapa)
 
@@ -68,7 +70,7 @@ class WizardExportFatturapa(models.TransientModel):
             'name': "Re-Export Electronic Invoice",
             'res_model': 'fatturapa.attachment.out',
             'type': 'ir.actions.act_window',
-            }
+        }
 
         if len(attachments) == 1:
             action['view_mode'] = 'form'

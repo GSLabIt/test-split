@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <act_window id="action_wizard_export_fatturapa_regenerate"
-                name="Re-Export Electronic Invoice"
-                res_model="wizard.export.fatturapa"
-                target="new"
-                view_id="wizard_export_fatturapa_form_view_regenerate"
-                view_mode="form"/>
+    <act_window id="action_wizard_export_fatturapa_regenerate" name="Re-Export Electronic Invoice" res_model="wizard.export.fatturapa" target="new" view_id="wizard_export_fatturapa_form_view_regenerate" view_mode="form"/>
 
     <record id="view_invoice_fatturapa_out_pec_tree" model="ir.ui.view">
         <field name="name">view.invoice.fatturapa.out.pec.tree</field>
@@ -28,9 +23,7 @@
                 <field name="fatturapa_state"/>
             </xpath>
             <button name="preview_invoice" position="before">
-                <button name="%(action_wizard_export_fatturapa_regenerate)d" type="action"
-                        string="Re-Export E-invoice" class="oe_highlight"
-                        attrs="{'invisible': ['|', '|', ('fatturapa_attachment_out_id', '=', False), ('fatturapa_state', 'not in', ['error']), ('state', 'not in', ['open', 'paid'])]}"/>
+                <button name="%(action_wizard_export_fatturapa_regenerate)d" type="action" string="Re-Export E-invoice" class="oe_highlight" attrs="{'invisible': ['|', '|', ('fatturapa_attachment_out_id', '=', False), ('fatturapa_state', 'not in', ['error']), ('state', 'not in', ['open', 'paid'])]}"/>
             </button>
         </field>
     </record>

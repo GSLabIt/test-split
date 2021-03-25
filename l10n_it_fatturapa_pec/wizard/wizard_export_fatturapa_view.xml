@@ -10,8 +10,7 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//button[@name='exportFatturaPA']" position="after">
-                <button name="exportFatturaPARegenerate" string="Re-Export"
-                        type="object" class="oe_highlight"/>
+                <button name="exportFatturaPARegenerate" string="Re-Export" type="object" class="oe_highlight"/>
             </xpath>
         </field>
     </record>

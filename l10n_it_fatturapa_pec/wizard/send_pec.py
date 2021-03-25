@@ -1,4 +1,3 @@
-
 from odoo import models, api
 
 
@@ -10,5 +9,6 @@ class SendPEC(models.TransientModel):
     def send_pec(self):
         if self.env.context.get('active_ids'):
             attachments = self.env['fatturapa.attachment.out'].browse(
-                self.env.context['active_ids'])
+                self.env.context['active_ids']
+            )
             attachments.send_via_pec()

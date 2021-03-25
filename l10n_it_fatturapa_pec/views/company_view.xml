@@ -12,8 +12,7 @@
                         <div class="o_setting_left_pane"/>
                         <div class="o_setting_right_pane">
                             <span class="o_form_label">Supplier Bills</span>
-                            <span class="fa fa-lg fa-building-o" title="Values set here are company-specific."
-                                aria-label="Values set here are company-specific."/>
+                            <span class="fa fa-lg fa-building-o" title="Values set here are company-specific." aria-label="Values set here are company-specific."/>
                             <div class="text-muted">
                                 Default user used in electronic supplier bills
                             </div>

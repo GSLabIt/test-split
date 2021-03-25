@@ -22,21 +22,20 @@ class FatturaPAAttachmentOut(models.Model):
     _inherit = 'fatturapa.attachment.out'
 
     last_sdi_response = fields.Text(
-        string='Last Response from Exchange System', default='No response yet',
-        readonly=True)
+        string='Last Response from Exchange System',
+        default='No response yet',
+        readonly=True
+    )
     sending_date = fields.Datetime("Sent Date", readonly=True)
     delivered_date = fields.Datetime("Delivered Date", readonly=True)
     sending_user = fields.Many2one("res.users", "Sending User", readonly=True)
 
     @api.model
     def _check_fetchmail(self):
-        server = self.env['fetchmail.server'].search([
-            ('is_fatturapa_pec', '=', True),
-            ('state', '=', 'done')
-        ])
+        server = self.env['fetchmail.server'].search([('is_fatturapa_pec', '=', True),
+                                                      ('state', '=', 'done')])
         if not server:
-            raise UserError(_(
-                "No incoming PEC server found. Please configure it."))
+            raise UserError(_("No incoming PEC server found. Please configure it."))
 
     @api.multi
     def send_via_pec(self):
@@ -44,9 +43,7 @@ class FatturaPAAttachmentOut(models.Model):
         self.env.user.company_id.sdi_channel_id.check_first_pec_sending()
         states = self.mapped('state')
         if set(states) != set(['ready']):
-            raise UserError(
-                _("You can only send files in 'Ready to Send' state.")
-            )
+            raise UserError(_("You can only send files in 'Ready to Send' state."))
         for att in self:
             if not att.datas or not att.datas_fname:
                 raise UserError(_("File content and file name are mandatory"))
@@ -54,18 +51,16 @@ class FatturaPAAttachmentOut(models.Model):
                 'model': self._name,
                 'res_id': att.id,
                 'subject': att.name,
-                'body': 'XML file for FatturaPA {} sent to Exchange System to '
-                        'the email address {}.'
-                .format(
-                    att.name,
-                    self.env.user.company_id.email_exchange_system),
+                'body':
+                    'XML file for FatturaPA {} sent to Exchange System to '
+                    'the email address {}.'.format(
+                        att.name, self.env.user.company_id.email_exchange_system
+                    ),
                 'attachment_ids': [(6, 0, att.ir_attachment_id.ids)],
-                'email_from': (
-                    self.env.user.company_id.email_from_for_fatturaPA),
-                'reply_to': (
-                    self.env.user.company_id.email_from_for_fatturaPA),
-                'mail_server_id': self.env.user.company_id.sdi_channel_id.
-                pec_server_id.id,
+                'email_from': (self.env.user.company_id.email_from_for_fatturaPA),
+                'reply_to': (self.env.user.company_id.email_from_for_fatturaPA),
+                'mail_server_id':
+                    self.env.user.company_id.sdi_channel_id.pec_server_id.id,
             })
 
             mail = self.env['mail.mail'].create({
@@ -73,8 +68,7 @@ class FatturaPAAttachmentOut(models.Model):
                 'body_html': mail_message.body,
                 'email_to': self.env.user.company_id.email_exchange_system,
                 'headers': {
-                    'Return-Path':
-                    self.env.user.company_id.email_from_for_fatturaPA
+                    'Return-Path': self.env.user.company_id.email_from_for_fatturaPA
                 }
             })
 
@@ -96,8 +90,7 @@ class FatturaPAAttachmentOut(models.Model):
         message_dict['res_id'] = 0
 
         regex = re.compile(RESPONSE_MAIL_REGEX)
-        attachments = [x for x in message_dict['attachments']
-                       if regex.match(x.fname)]
+        attachments = [x for x in message_dict['attachments'] if regex.match(x.fname)]
 
         for attachment in attachments:
             response_name = attachment.fname
@@ -111,21 +104,19 @@ class FatturaPAAttachmentOut(models.Model):
 
             if file_name is not None:
                 file_name = file_name.text
-                fatturapa_attachment_out = self.search(
-                    ['|',
-                     ('datas_fname', '=', file_name),
-                     ('datas_fname', '=', file_name.replace('.p7m', ''))])
+                fatturapa_attachment_out = self.search([
+                    '|', ('datas_fname', '=', file_name),
+                    ('datas_fname', '=', file_name.replace('.p7m', ''))
+                ])
                 if len(fatturapa_attachment_out) > 1:
-                    _logger.info('More than 1 out invoice found for incoming'
-                                 'message')
+                    _logger.info('More than 1 out invoice found for incoming' 'message')
                     fatturapa_attachment_out = fatturapa_attachment_out[0]
                 if not fatturapa_attachment_out:
                     if message_type == 'MT':  # Metadati
                         # out invoice not found, so it is an incoming invoice
                         return message_dict
                     else:
-                        _logger.info('Error: FatturaPA {} not found.'.format(
-                            file_name))
+                        _logger.info('Error: FatturaPA {} not found.'.format(file_name))
                         # TODO Send a mail warning
                         return message_dict
 
@@ -143,39 +134,46 @@ class FatturaPAAttachmentOut(models.Model):
                     error_str = ''
                     for error in error_list:
                         error_str += "\n[%s] %s %s" % (
-                            error.find('Codice').text if error.find(
-                                'Codice') is not None else '',
-                            error.find('Descrizione').text if error.find(
-                                'Descrizione') is not None else '',
-                            error.find('Suggerimento').text if error.find(
-                                'Suggerimento') is not None else ''
+                            error.find('Codice').text if error.find('Codice')
+                            is not None else '', error.find('Descrizione').text
+                            if error.find('Descrizione') is not None else '',
+                            error.find('Suggerimento').text
+                            if error.find('Suggerimento') is not None else ''
                         )
                     fatturapa_attachment_out.write({
                         'state': 'sender_error',
-                        'last_sdi_response': 'SdI ID: {}; '
-                        'Message ID: {}; Receipt date: {}; '
-                        'Error: {}'.format(
-                            id_sdi, message_id, receipt_dt, error_str)
+                        'last_sdi_response':
+                            'SdI ID: {}; '
+                            'Message ID: {}; Receipt date: {}; '
+                            'Error: {}'.format(
+                                id_sdi, message_id, receipt_dt, error_str
+                            )
                     })
                 elif message_type == 'MC':  # 3A. Mancata consegna
                     missed_delivery_note = root.find('Descrizione').text
                     fatturapa_attachment_out.write({
                         'state': 'recipient_error',
-                        'last_sdi_response': 'SdI ID: {}; '
-                        'Message ID: {}; Receipt date: {}; '
-                        'Missed delivery note: {}'.format(
-                            id_sdi, message_id, receipt_dt,
-                            missed_delivery_note)
+                        'last_sdi_response':
+                            'SdI ID: {}; '
+                            'Message ID: {}; Receipt date: {}; '
+                            'Missed delivery note: {}'.format(
+                                id_sdi, message_id, receipt_dt, missed_delivery_note
+                            )
                     })
                 elif message_type == 'RC':  # 3B. Ricevuta di Consegna
                     delivery_dt = root.find('DataOraConsegna').text
                     fatturapa_attachment_out.write({
                         'state': 'validated',
                         'delivered_date': fields.Datetime.now(),
-                        'last_sdi_response': 'SdI ID: {}; '
-                        'Message ID: {}; Receipt date: {}; '
-                        'Delivery date: {}'.format(
-                            id_sdi, message_id, receipt_dt, delivery_dt)
+                        'last_sdi_response':
+                            'SdI ID: {}; '
+                            'Message ID: {}; Receipt date: {}; '
+                            'Delivery date: {}'.format(
+                                id_sdi,
+                                message_id,
+                                receipt_dt,
+                                delivery_dt,
+                        )
                     })
                 elif message_type == 'NE':  # 4A. Notifica Esito per PA
                     esito_committente = root.find('EsitoCommittente')
@@ -189,20 +187,23 @@ class FatturaPAAttachmentOut(models.Model):
                                 state = 'rejected'
                             fatturapa_attachment_out.write({
                                 'state': state,
-                                'last_sdi_response': 'SdI ID: {}; '
-                                'Message ID: {}; Response: {}; '.format(
-                                    id_sdi, message_id, esito.text)
+                                'last_sdi_response':
+                                    'SdI ID: {}; '
+                                    'Message ID: {}; Response: {}; '.format(
+                                        id_sdi, message_id, esito.text
+                                    )
                             })
                 elif message_type == 'DT':  # 5. Decorrenza Termini per PA
                     description = root.find('Descrizione')
                     if description is not None:
                         fatturapa_attachment_out.write({
                             'state': 'validated',
-                            'last_sdi_response': 'SdI ID: {}; '
-                            'Message ID: {}; Receipt date: {}; '
-                            'Description: {}'.format(
-                                id_sdi, message_id, receipt_dt,
-                                description.text)
+                            'last_sdi_response':
+                                'SdI ID: {}; '
+                                'Message ID: {}; Receipt date: {}; '
+                                'Description: {}'.format(
+                                    id_sdi, message_id, receipt_dt, description.text
+                                )
                         })
                 # not implemented - todo
                 elif message_type == 'AT':  # 6. Avvenuta Trasmissione per PA
@@ -213,9 +214,7 @@ class FatturaPAAttachmentOut(models.Model):
                             'last_sdi_response': (
                                 'SdI ID: {}; Message ID: {}; Receipt date: {};'
                                 ' Description: {}'
-                            ).format(
-                                id_sdi, message_id, receipt_dt,
-                                description.text)
+                            ).format(id_sdi, message_id, receipt_dt, description.text)
                         })
 
                 message_dict['res_id'] = fatturapa_attachment_out.id

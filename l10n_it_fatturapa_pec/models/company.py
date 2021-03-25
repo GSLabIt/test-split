@@ -7,7 +7,8 @@ class ResCompany(models.Model):
     _inherit = 'res.company'
 
     e_invoice_user_id = fields.Many2one(
-        "res.users", "E-bill creator",
+        "res.users",
+        "E-bill creator",
         help="This user will be used at supplier e-bill creation.",
         default=lambda self: self.env.user.id
     )
