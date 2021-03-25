@@ -8,8 +8,16 @@ on:
       - "12.0-ocabot*"
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: pre-commit/action@v2.0.0
+
   test:
     runs-on: ubuntu-latest
+    needs: [pre-commit]
     container: ghcr.io/sbidoul/oca-ci/py3.6-odoo12.0:latest
     services:
       postgres:
@@ -30,3 +38,29 @@ jobs:
       - run: oca_init_test_database
       - run: oca_run_tests
       - uses: codecov/codecov-action@v1
+
+  makepot:
+    runs-on: ubuntu-latest
+    needs: [pre-commit, test]
+    # if: ${{ github.ref == 'refs/heads/12.0-dev' }}
+    container: ghcr.io/sbidoul/oca-ci/py3.6-odoo12.0:latest
+    services:
+      postgres:
+        image: postgres:9.6
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: odoo
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options:
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s
+          --health-retries 5
+    env:
+      GITHUB_USER: "Ooops CI"
+      GITHUB_EMAIL: noreply@github.com
+      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
+
+    steps:
+      oca_export_and_commit_pot
