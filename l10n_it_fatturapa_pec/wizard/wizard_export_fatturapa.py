@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 # Copyright 2019 Roberto Fichera - Level Prime Srl
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import base64
 import logging
 
-from odoo import models, _
+from odoo import _, models
 from odoo.exceptions import ValidationError
 
 from odoo.addons.l10n_it_fatturapa_out.wizard.wizard_export_fatturapa import (
-    fatturapaBDS
+    fatturapaBDS,
 )
 
 _logger = logging.getLogger(__name__)

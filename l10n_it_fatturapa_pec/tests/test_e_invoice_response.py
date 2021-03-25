@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Simone Rubino - Agile Business Group
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 from odoo.tools import mute_logger
@@ -19,8 +18,7 @@ class TestEInvoiceResponse(EInvoiceCommon):
 
     @staticmethod
     def _get_file(filename):
-        path = get_module_resource(
-            'l10n_it_fatturapa_pec', 'tests', 'data', filename)
+        path = get_module_resource('l10n_it_fatturapa_pec', 'tests', 'data', filename)
         with open(path) as test_data:
             return test_data.read()
 
@@ -32,7 +30,8 @@ class TestEInvoiceResponse(EInvoiceCommon):
         e_invoice.send_via_pec()
 
         incoming_mail = self._get_file(
-            'POSTA CERTIFICATA_ Ricevuta di consegna 6782414.txt')
+            'POSTA CERTIFICATA_ Ricevuta di consegna 6782414.txt'
+        )
 
         self.env['mail.thread'] \
             .with_context(fetchmail_server_id=self.PEC_server.id) \
@@ -45,20 +44,19 @@ class TestEInvoiceResponse(EInvoiceCommon):
         self.set_e_invoice_file_id(e_invoice, 'IT03339130126_00009.xml')
         e_invoice.send_via_pec()
 
-        incoming_mail = self._get_file(
-            'CONSEGNA_ IT03339130126_00009.xml.txt')
+        incoming_mail = self._get_file('CONSEGNA_ IT03339130126_00009.xml.txt')
 
         messages_nbr = self.env['mail.message'].search_count([
-            ('model', '=', e_invoice._name),
-            ('res_id', '=', e_invoice.id)])
+            ('model', '=', e_invoice._name), ('res_id', '=', e_invoice.id)
+        ])
 
         self.env['mail.thread'] \
             .with_context(fetchmail_server_id=self.PEC_server.id) \
             .message_process(False, incoming_mail)
 
         messages_nbr = self.env['mail.message'].search_count([
-            ('model', '=', e_invoice._name),
-            ('res_id', '=', e_invoice.id)]) - messages_nbr
+            ('model', '=', e_invoice._name), ('res_id', '=', e_invoice.id)
+        ]) - messages_nbr
 
         self.assertTrue(messages_nbr)
 
@@ -68,27 +66,25 @@ class TestEInvoiceResponse(EInvoiceCommon):
         self.set_e_invoice_file_id(e_invoice, 'IT03339130126_00009.xml')
         e_invoice.send_via_pec()
 
-        incoming_mail = self._get_file(
-            'ACCETTAZIONE_ IT03339130126_00009.xml.txt')
+        incoming_mail = self._get_file('ACCETTAZIONE_ IT03339130126_00009.xml.txt')
 
         messages_nbr = self.env['mail.message'].search_count([
-            ('model', '=', e_invoice._name),
-            ('res_id', '=', e_invoice.id)])
+            ('model', '=', e_invoice._name), ('res_id', '=', e_invoice.id)
+        ])
 
         self.env['mail.thread'] \
             .with_context(fetchmail_server_id=self.PEC_server.id) \
             .message_process(False, incoming_mail)
 
         messages_nbr = self.env['mail.message'].search_count([
-            ('model', '=', e_invoice._name),
-            ('res_id', '=', e_invoice.id)]) - messages_nbr
+            ('model', '=', e_invoice._name), ('res_id', '=', e_invoice.id)
+        ]) - messages_nbr
 
         self.assertTrue(messages_nbr)
 
     def test_process_response_INVIO(self):
         """Receiving a 'Invio File' creates a new e-invoice"""
-        incoming_mail = self._get_file(
-            'POSTA CERTIFICATA: Invio File 7339338.txt')
+        incoming_mail = self._get_file('POSTA CERTIFICATA: Invio File 7339338.txt')
 
         e_invoices = self.attach_in_model.search([])
 
@@ -104,20 +100,21 @@ class TestEInvoiceResponse(EInvoiceCommon):
         self.assertTrue(e_invoices)
         self.assertEqual(
             Datetime.from_string(e_invoices.e_invoice_received_date),
-            Datetime.from_string(msg_dict['date']))
-        self.assertEqual(e_invoices.xml_supplier_id.vat,
-                         'IT02652600210')
+            Datetime.from_string(msg_dict['date'])
+        )
+        self.assertEqual(e_invoices.xml_supplier_id.vat, 'IT02652600210')
 
     def test_process_response_INVIO_broken_XML(self):
         """Receiving a 'Invio File' with a broken XML sends an email
         to e_inv_notify_partner_ids"""
         incoming_mail = self._get_file(
-            'POSTA CERTIFICATA: Invio File 7339338 (broken XML).txt')
+            'POSTA CERTIFICATA: Invio File 7339338 (broken XML).txt'
+        )
         outbound_mail_model = self.env['mail.mail']
         error_mail_domain = [
             ('body_html', 'like', 'unbound_prefix'),
-            ('recipient_ids', 'in',
-             self.PEC_server.e_inv_notify_partner_ids.ids)]
+            ('recipient_ids', 'in', self.PEC_server.e_inv_notify_partner_ids.ids)
+        ]
         error_mails_nbr = outbound_mail_model.search_count(error_mail_domain)
         self.assertFalse(error_mails_nbr)
 
@@ -127,8 +124,7 @@ class TestEInvoiceResponse(EInvoiceCommon):
             instance.stat.return_value = (1, 1)
             instance.retr.return_value = ('', [incoming_mail], '')
 
-            with mute_logger(
-                    'odoo.addons.l10n_it_fatturapa_pec.models.fetchmail'):
+            with mute_logger('odoo.addons.l10n_it_fatturapa_pec.models.fetchmail'):
                 self.PEC_server.fetch_mail()
 
         error_mails = outbound_mail_model.search(error_mail_domain)
@@ -146,8 +142,7 @@ class TestEInvoiceResponse(EInvoiceCommon):
         self.set_e_invoice_file_id(e_invoice, 'IT14627831002_02621.xml')
         e_invoice.send_via_pec()
 
-        incoming_mail = self._get_file(
-            'POSTA CERTIFICATA_mancata_consegna.txt')
+        incoming_mail = self._get_file('POSTA CERTIFICATA_mancata_consegna.txt')
 
         self.env['mail.thread'] \
             .with_context(fetchmail_server_id=self.PEC_server.id) \

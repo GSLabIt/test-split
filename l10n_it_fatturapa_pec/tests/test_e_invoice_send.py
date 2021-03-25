@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Simone Rubino - Agile Business Group
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
@@ -115,7 +114,8 @@ class TestEInvoiceSend(EInvoiceCommon):
 
         # set SDI address after first sending
         self.env.user.company_id.sdi_channel_id.email_exchange_system = (
-            'sdi01@pec.fatturapa.it')
+            'sdi01@pec.fatturapa.it'
+        )
         # Send it again
         e_invoice.send_via_pec()
         self.assertEqual(e_invoice.state, 'sent')

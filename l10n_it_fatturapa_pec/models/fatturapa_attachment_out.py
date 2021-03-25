@@ -8,8 +8,9 @@ import re
 
 from lxml import etree
 
-from odoo import api, fields, models, _
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
 from odoo.addons.base.models.ir_mail_server import MailDeliveryException
 
 _logger = logging.getLogger(__name__)
@@ -169,10 +170,7 @@ class FatturaPAAttachmentOut(models.Model):
                             'SdI ID: {}; '
                             'Message ID: {}; Receipt date: {}; '
                             'Delivery date: {}'.format(
-                                id_sdi,
-                                message_id,
-                                receipt_dt,
-                                delivery_dt,
+                                id_sdi, message_id, receipt_dt, delivery_dt
                         )
                     })
                 elif message_type == 'NE':  # 4A. Notifica Esito per PA
