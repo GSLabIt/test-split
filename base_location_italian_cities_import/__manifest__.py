@@ -7,10 +7,7 @@
     'author': 'Ooops',
     'website': 'https://www.ooops403.com',
     'depends': ['base_location'],
-    'data': [
-        'views/res_city_view.xml',
-        'wizard/istat_import_view.xml',
-    ],
+    'data': ['views/res_city_view.xml', 'wizard/istat_import_view.xml'],
     "external_dependencies": {
         "python": ["requests"]
     },
