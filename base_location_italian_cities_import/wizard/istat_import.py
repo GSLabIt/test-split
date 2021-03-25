@@ -23,11 +23,7 @@ class CityZipIstatImport(models.TransientModel):
         'res.country', 'Country', required=True, default=_get_default_country
     )
     letter_case = fields.Selection(
-        [
-            ('unchanged', 'Unchanged'),
-            ('title', 'Title Case'),
-            ('upper', 'Upper Case'),
-        ],
+        [('unchanged', 'Unchanged'), ('title', 'Title Case'), ('upper', 'Upper Case')],
         string='Letter Case',
         default='unchanged',
         help="Converts retreived city and state names to Title Case "
