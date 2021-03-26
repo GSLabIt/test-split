@@ -1,4 +1,2 @@
-codicefiscale
-asn1crypto
-pyxb==1.2.6
-unidecode
+# generated from manifests external_dependencies
+requests
