@@ -35,14 +35,17 @@ jobs:
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
+
     env:
       OCA_GIT_USER_NAME: gslabit
       OCA_GIT_USER_EMAIL: giovanni@gslab.it
       GITHUB_TOKEN: ${{ secrets.GS_TOKEN }}
       REPO: ${{ github.repository }}
       BRANCH: ${{ github.head_ref || github.ref}}
+
     steps:
-      - run: apt-get install openssh-client -y
+      - name: Install openssh-client
+        run: apt-get install openssh-client -y
 
       - uses: actions/checkout@v2
         with:
@@ -52,14 +55,20 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - run: oca_install_addons
-      - run: oca_init_test_database
-      - run: oca_run_tests
+      - name: Install addons
+        run: oca_install_addons
+
+      - name: Install init test database
+        run: oca_init_test_database
+
+      - name: Install run tests
+        run: oca_run_tests
+
       - name: Makepot
         # prettier-ignore
         if:
-          ${{ (contains(github.ref, 'ocabot-merge') == true || github.ref ==
-          'refs/heads/12.0-dev') &&  success() }}
+          ${{ success() && (contains(github.ref, 'ocabot-merge') == true || github.ref ==
+          'refs/heads/12.0-dev') }}
         run: |
           oca_export_and_commit_pot
           git push https://${OCA_GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${REPO} HEAD:${BRANCH}
