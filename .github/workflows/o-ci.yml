@@ -37,8 +37,8 @@ jobs:
           --health-retries 5
 
     env:
-      OCA_GIT_USER_NAME: gslabit
-      OCA_GIT_USER_EMAIL: giovanni@gslab.it
+      OCA_GIT_USER_NAME: Ooops CI
+      OCA_GIT_USER_EMAIL: noreply@github.com
       GITHUB_TOKEN: ${{ secrets.GS_TOKEN }}
       REPO: ${{ github.repository }}
       BRANCH: ${{ github.head_ref || github.ref}}
