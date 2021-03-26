@@ -36,8 +36,8 @@ jobs:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
     env:
-      OCA_GIT_USER_NAME: "Ooops CI"
-      OCA_GIT_USER_EMAIL: noreply@github.com
+      OCA_GIT_USER_NAME: gslabit
+      OCA_GIT_USER_EMAIL: giovanni@gslab.it
 
     steps:
       - uses: actions/checkout@v1
