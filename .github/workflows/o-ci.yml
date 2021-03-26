@@ -38,7 +38,7 @@ jobs:
     env:
       OCA_GIT_USER_NAME: gslabit
       OCA_GIT_USER_EMAIL: giovanni@gslab.it
-      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
+      GITHUB_TOKEN: ${{ secrets.GS_TOKEN }}
       REPO: ${{ github.repository }}
       BRANCH: ${{ github.head_ref || github.ref}}
     steps:
