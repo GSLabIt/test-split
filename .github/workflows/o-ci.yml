@@ -21,7 +21,7 @@ jobs:
     name: "Run Tests"
     runs-on: ubuntu-latest
     needs: [pre-commit]
-    container: ghcr.io/sbidoul/oca-ci/py3.6-odoo12.0:latest
+    container: ghcr.io/gslabit/oca-ci/py3.6-odoo12.0:latest
     services:
       postgres:
         image: postgres:9.6
@@ -37,16 +37,13 @@ jobs:
           --health-retries 5
 
     env:
-      OCA_GIT_USER_NAME: gslabit
+      OCA_GIT_USER_NAME: ${{ github.actor }}
       OCA_GIT_USER_EMAIL: noreply@github.com
       GITHUB_TOKEN: ${{ secrets.GS_TOKEN }}
-      REPO: ${{ github.repository }}
+      REPOSITORY: ${{ github.repository }}
       BRANCH: ${{ github.head_ref || github.ref}}
 
     steps:
-      - name: Install openssh-client
-        run: apt-get install openssh-client -y
-
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.GS_TOKEN }}
@@ -64,11 +61,7 @@ jobs:
       - name: Run tests
         run: oca_run_tests
 
-      - name: Makepot
+      - name: Run makepot
         # prettier-ignore
-        if:
-          ${{ success() && (contains(github.ref, 'ocabot-merge') == true || github.ref ==
-          'refs/heads/12.0-dev') }}
-        run: |
-          oca_export_and_commit_pot
-          git push https://${OCA_GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${REPO} HEAD:${BRANCH}
+        if: ${{ (github.ref == 'refs/heads/12.0-dev' || contains(github.ref, 'ocabot-merge') == true) && success() }}
+        run: oca_export_and_commit_pot
