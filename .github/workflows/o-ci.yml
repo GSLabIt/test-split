@@ -9,6 +9,7 @@ on:
 
 jobs:
   pre-commit:
+    name: "Pre-commit"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,6 +17,7 @@ jobs:
       - uses: pre-commit/action@v2.0.0
 
   test:
+    name: "Run Tests"
     runs-on: ubuntu-latest
     needs: [pre-commit]
     container: ghcr.io/sbidoul/oca-ci/py3.6-odoo12.0:latest
@@ -40,6 +42,7 @@ jobs:
       - uses: codecov/codecov-action@v1
 
   makepot:
+    name: "Makepot"
     runs-on: ubuntu-latest
     needs: [pre-commit, test]
     # if: ${{ github.ref == 'refs/heads/12.0-dev' }}
@@ -63,4 +66,4 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
 
     steps:
-      oca_export_and_commit_pot
+      - run: oca_export_and_commit_pot
