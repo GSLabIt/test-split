@@ -34,18 +34,26 @@ jobs:
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
+    env:
+      OCA_GIT_USER_NAME: "Ooops CI"
+      OCA_GIT_USER_EMAIL: noreply@github.com
+
     steps:
       - uses: actions/checkout@v1
       - run: oca_install_addons
       - run: oca_init_test_database
       - run: oca_run_tests
+      - name: Makepot
+          #if: ${{ github.ref == 'refs/heads/12.0-dev' }}
+          run: |
+            oca_export_and_commit_pot
       - uses: codecov/codecov-action@v1
 
   makepot:
     name: "Makepot"
     runs-on: ubuntu-latest
     needs: [pre-commit, test]
-    # if: ${{ github.ref == 'refs/heads/12.0-dev' }}
+    #
     container: ghcr.io/sbidoul/oca-ci/py3.6-odoo12.0:latest
     services:
       postgres:
@@ -60,10 +68,6 @@ jobs:
         options:
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s
           --health-retries 5
-    env:
-      GITHUB_USER: "Ooops CI"
-      GITHUB_EMAIL: noreply@github.com
-      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
 
     steps:
       - run: oca_export_and_commit_pot
