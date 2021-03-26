@@ -42,7 +42,7 @@ jobs:
       REPO: ${{ github.repository }}
       BRANCH: ${{ github.head_ref || github.ref}}
     steps:
-      - run: apt-get install openssh-client
+      - run: apt-get install openssh-client -y
 
       - uses: actions/checkout@v2
         with:
