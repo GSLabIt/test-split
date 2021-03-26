@@ -58,10 +58,10 @@ jobs:
       - name: Install addons
         run: oca_install_addons
 
-      - name: Install init test database
+      - name: Init test database
         run: oca_init_test_database
 
-      - name: Install run tests
+      - name: Run tests
         run: oca_run_tests
 
       - name: Makepot
