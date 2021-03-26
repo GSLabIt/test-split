@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v2
       - uses: pre-commit/action@v2.0.0
 
-  test:
+  run-test:
     name: "Run Tests"
     runs-on: ubuntu-latest
     needs: [pre-commit]
@@ -42,13 +42,19 @@ jobs:
       REPO: ${{ github.repository }}
       BRANCH: ${{ github.head_ref || github.ref}}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GS_TOKEN }}
+
+      - uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - run: oca_install_addons
       - run: oca_init_test_database
       - run: oca_run_tests
       - name: Makepot
+        if: ${{ success() and (github.ref == 'refs/heads/12.0-dev' or contains(github.ref, 'ocabot-merge') == true) }}
         run: |
           oca_export_and_commit_pot
           git push https://${OCA_GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${REPO} HEAD:${BRANCH}
-
-      - uses: codecov/codecov-action@v1
