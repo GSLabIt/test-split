@@ -46,7 +46,7 @@ jobs:
         with:
           token: ${{ secrets.GS_TOKEN }}
 
-      - uses: webfactory/ssh-agent@v0.4.1
+      - uses: webfactory/ssh-agent@v0.5.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
