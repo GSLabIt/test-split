@@ -49,6 +49,6 @@ jobs:
       - name: Makepot
         run: |
           oca_export_and_commit_pot
-          git push https://${OCA_GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${REPO}HEAD:${BRANCH}
+          git push https://${OCA_GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${REPO} HEAD:${BRANCH}
 
       - uses: codecov/codecov-action@v1
