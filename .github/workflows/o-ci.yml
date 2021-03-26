@@ -45,6 +45,5 @@ jobs:
       - run: oca_init_test_database
       - run: oca_run_tests
       - name: Makepot
-        if: ${{ github.ref == 'refs/heads/12.0-dev' }}
         run: oca_export_and_commit_pot
       - uses: codecov/codecov-action@v1
