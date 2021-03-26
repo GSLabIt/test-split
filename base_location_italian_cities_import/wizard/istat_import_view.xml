@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
     <record id="city_zip_geonames_import_form" model="ir.ui.view">
         <field name="name">Import Istat and Zip Codes form view</field>
         <field name="model">city.zip.istat.import</field>
@@ -8,28 +7,41 @@
             <form string="Import Italian Cities">
                 <group name="help">
                     <div>
-                        <p>This wizard will download the latest version of the list of cities and Istat codes for Italy from, create new location entries if not found already in the system, and <b>delete missing entries</b> from new file.</p>
+                        <p
+                        >This wizard will download the latest version of the list of cities and Istat codes for Italy from, create new location entries if not found already in the system, and <b
+                            >delete missing entries</b> from new file.</p>
                     </div>
                 </group>
                 <group name="main">
-                    <field name="country_id" domain="[('code','=','IT')]" readonly="1"/>
-                    <field name="letter_case"/>
+                    <field
+                        name="country_id"
+                        domain="[('code','=','IT')]"
+                        readonly="1"
+                    />
+                    <field name="letter_case" />
                 </group>
                 <footer>
-                    <button name="run_import" type="object" class="oe_highlight" string="Import"/>
-                    <button special="cancel" string="Cancel" class="oe_link"/>
+                    <button
+                        name="run_import"
+                        type="object"
+                        class="oe_highlight"
+                        string="Import"
+                    />
+                    <button special="cancel" string="Cancel" class="oe_link" />
                 </footer>
             </form>
         </field>
     </record>
-
     <record id="city_zip_istat_import_action" model="ir.actions.act_window">
         <field name="name">Import Italian Cities</field>
         <field name="res_model">city.zip.istat.import</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-
-    <menuitem id="city_zip_istat_import_menu" action="city_zip_istat_import_action" parent="contacts.menu_localisation" sequence="60" />
-
+    <menuitem
+        id="city_zip_istat_import_menu"
+        action="city_zip_istat_import_action"
+        parent="contacts.menu_localisation"
+        sequence="60"
+    />
 </odoo>
