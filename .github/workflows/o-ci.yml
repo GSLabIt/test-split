@@ -38,12 +38,17 @@ jobs:
     env:
       OCA_GIT_USER_NAME: gslabit
       OCA_GIT_USER_EMAIL: giovanni@gslab.it
-
+      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
+      REPO: ${{ github.repository }}
+      BRANCH: ${{ github.head_ref || github.ref}}
     steps:
       - uses: actions/checkout@v1
       - run: oca_install_addons
       - run: oca_init_test_database
       - run: oca_run_tests
       - name: Makepot
-        run: oca_export_and_commit_pot
+        run: |
+          oca_export_and_commit_pot
+          git push https://${OCA_GIT_USER_NAME}:${GITHUB_TOKEN}@github.com/${REPO}HEAD:${BRANCH}
+
       - uses: codecov/codecov-action@v1
