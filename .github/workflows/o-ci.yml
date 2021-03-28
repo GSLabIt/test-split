@@ -1,4 +1,4 @@
-name: test Odoo addons
+name: Ooops CI - packages
 
 on:
   pull_request:

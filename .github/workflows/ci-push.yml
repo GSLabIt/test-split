@@ -1,0 +1,152 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Ooops CI - Push
+
+on:
+  push:
+    branches:
+      - "[0-9][0-9].0"
+      - "[0-9][0-9].0-dev"
+      - "*ocabot-merge*"
+
+jobs:
+  check-workflow:
+    name: "Check Workflow Run"
+    if: ${{ github.event_name == 'push' }}
+    # continue-on-error: true # Uncomment once integration is finished
+    runs-on: ubuntu-18.04
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v2.2.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          paths_ignore:
+            '["**/README.rst", "**/README.md", "**/i18n/*.po*", "**/workflows/*.yml"]'
+
+  cancel-run-push:
+    name: "Cancel Previous Runs"
+    needs: check-workflow
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-18.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get Workflow ID
+        id: get_workflow_id
+        uses: ./.github/actions/get-workflow-id-action
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow_file_name: ci-push.yml
+
+      - uses: styfle/cancel-workflow-action@0.3.1
+        with:
+          workflow_id: ${{ steps.get_workflow_id.outputs.workflow_id }}
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+
+
+  run-tests:
+    name: "Run tests"
+    needs: [check-workflow, cancel-run-push]
+    if:
+      ${{ !github.event.pull_request && needs.check-workflow.outputs.should_skip !=
+      'true' }}
+    env:
+      LINT_CHECK: "0"
+      TESTS: "0"
+      MAKEPOT: "0"
+      VERSION: "12.0"
+      ODOO_REPO: "odoo/odoo"
+      TRAVIS_BUILD_DIR: ${{ github.workspace }}
+      TRAVIS_PYTHON_VERSION: "3.6"
+      WEBSITE_REPO: "0"
+      TRAVIS_BRANCH: ${{ github.head_ref || github.ref}}
+      TRAVIS_REPO_SLUG: ${{ github.repository }}
+      TRAVIS_PULL_REQUEST: ${{ github.event.pull_request.number || 'false'}}
+      GITHUB_USER: "Ooops CI"
+      GITHUB_EMAIL: noreply@github.com
+      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
+
+    runs-on: ubuntu-18.04
+    container: gslabit/gha-oca-mqt:12.0
+    strategy:
+      fail-fast: false
+      matrix:
+        LINT_CHECK: ["1", "0"]
+        TESTS: ["0", "1"]
+        exclude:
+          - LINT_CHECK: "0"
+            TESTS: "0"
+          - LINT_CHECK: "1"
+            TESTS: "1"
+          - LINT_CHECK: "0"
+            TESTS: "1"
+        include:
+          - LINT_CHECK: "0"
+            TESTS: "1"
+            MAKEPOT: "1"
+
+    services:
+      postgres:
+        image: postgres:10
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+        ports:
+          - 5432:5432
+        options:
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GSLABIT_PAT }}
+
+      - uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Check it.po exists
+        uses: andstor/file-existence-action@v1.0.1
+        files: "it.po"
+        allow_failure: true
+
+      - name:
+          Run tests LINT=${{ matrix.LINT_CHECK }}, TESTS=${{ matrix.TESTS }},
+          MAKEPOT=${{ matrix.MAKEPOT || 0 }}
+        env:
+          LINT_CHECK: ${{ matrix.LINT_CHECK }}
+          TESTS: ${{ matrix.TESTS }}
+          MAKEPOT: ${{ matrix.MAKEPOT || 0 }}
+          PGHOST: postgres
+          PGUSER: odoo
+          PGPASSWORD: odoo
+          PGPORT: 5432
+        run: |
+          . setup_oca_mqt
+
+  copy-to-release:
+    name: "Release to ooops-release"
+    runs-on: ubuntu-latest
+    needs: run-tests
+    if: ${{ github.ref == 'refs/heads/12.0' }}
+    steps:
+    - name: Copycat
+      uses: andstor/copycat-action@v3
+      with:
+        personal_token: ${{ secrets.GSLABIT_PAT }}
+        src_path: /.
+        dst_path: /.
+        filter: '**/!(*.txt|*.md|*.git*|*.yml|.*)'
+        exclude: '.github/*'
+        dst_owner: ooops404
+        dst_repo_name: ooops-release
+        dst_branch: "12.0-dev"
+        src_branch: "12.0"
+        username: "Ooops CI"
+        email: noreply@github.com
+        commit_message: 'Update file(s) from ${{ github.repository }}'
