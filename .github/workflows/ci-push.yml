@@ -112,8 +112,9 @@ jobs:
 
       - name: Check it.po exists
         uses: andstor/file-existence-action@v1.0.1
-        files: "it.po"
-        allow_failure: true
+        with:
+          files: "it.po"
+          allow_failure: true
 
       - name:
           Run tests LINT=${{ matrix.LINT_CHECK }}, TESTS=${{ matrix.TESTS }},
