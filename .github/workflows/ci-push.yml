@@ -68,7 +68,7 @@ jobs:
       TRAVIS_PULL_REQUEST: ${{ github.event.pull_request.number || 'false'}}
       GITHUB_USER: "Ooops CI"
       GITHUB_EMAIL: noreply@github.com
-      GITHUB_TOKEN: ${{ secrets.GSLABIT_PAT }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     runs-on: ubuntu-18.04
     container: gslabit/gha-oca-mqt:12.0
@@ -104,7 +104,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GSLABIT_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: webfactory/ssh-agent@v0.4.1
         with:
