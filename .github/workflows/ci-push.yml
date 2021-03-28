@@ -47,6 +47,12 @@ jobs:
           workflow_id: ${{ steps.get_workflow_id.outputs.workflow_id }}
           access_token: ${{ secrets.GITHUB_TOKEN }}
 
+  check-it-po:
+    name: Check it.po exists
+    uses: andstor/file-existence-action@v1.0.1
+    with:
+      files: "it.po"
+      allow_failure: true
 
   run-tests:
     name: "Run tests"
@@ -109,12 +115,6 @@ jobs:
       - uses: webfactory/ssh-agent@v0.4.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Check it.po exists
-        uses: andstor/file-existence-action@v1.0.1
-        with:
-          files: "it.po"
-          allow_failure: true
 
       - name:
           Run tests LINT=${{ matrix.LINT_CHECK }}, TESTS=${{ matrix.TESTS }},
