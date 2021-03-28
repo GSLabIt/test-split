@@ -50,18 +50,9 @@ jobs:
   check-it-po:
     runs-on: ubuntu-latest
     needs: ['cancel-run-push']
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check file existence
-        id: check_files
-        uses: andstor/file-existence-action@v1
-        with:
-          files: "it.po"
-          allow_failure: true
+  steps:
+    - name: Only run this if file README exists
+      run: '(test -f it.po && echo it.po exists) || echo it.po does not exist, skipping step'
 
   run-tests:
     name: "Run tests"
